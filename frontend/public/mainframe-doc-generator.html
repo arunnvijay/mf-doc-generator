@@ -32,12 +32,13 @@
             text-align: center;
             margin-bottom: 60px;
             position: relative;
+            margin-top: 20px;
         }
 
         .show-around-btn {
             position: absolute;
-            top: 0;
-            left: 0;
+            top: 20px;
+            left: 20px;
             background: rgba(74, 222, 128, 0.1);
             border: 2px solid #4ade80;
             color: #4ade80;
@@ -48,6 +49,7 @@
             font-size: 14px;
             font-weight: 500;
             transition: all 0.3s ease;
+            z-index: 10;
         }
 
         .show-around-btn:hover {
@@ -375,6 +377,7 @@
 
             .header {
                 margin-bottom: 40px;
+                margin-top: 10px;
             }
 
             .generate-btn {
@@ -410,7 +413,7 @@
         <div class="header">
             <button class="show-around-btn" id="showAroundBtn">Show Around</button>
             <h1 class="main-title">MAINFRAME DOC GENERATOR</h1>
-            <p class="subtitle">Create easy-to-read documentation from mainframe JCL, PROC, and program code.</p>
+            <p class="subtitle">Create easy-to-read documentation from Mainframe JCL, PROC and COBOL, ASM, or PL/I code.</p>
         </div>
 
         <!-- Input sections -->
