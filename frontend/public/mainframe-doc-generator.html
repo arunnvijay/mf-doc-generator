@@ -38,23 +38,24 @@
         .show-around-btn {
             position: absolute;
             top: 20px;
-            left: 20px;
-            background: rgba(74, 222, 128, 0.1);
-            border: 2px solid #4ade80;
-            color: #4ade80;
-            padding: 12px 24px;
-            border-radius: 8px;
+            right: 20px;
+            background: rgba(74, 222, 128, 0.05);
+            border: 1px solid rgba(74, 222, 128, 0.4);
+            color: rgba(74, 222, 128, 0.7);
+            padding: 8px 16px;
+            border-radius: 6px;
             cursor: pointer;
             font-family: 'JetBrains Mono', monospace;
-            font-size: 14px;
-            font-weight: 500;
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            font-weight: 400;
             transition: all 0.3s ease;
             z-index: 10;
         }
 
         .show-around-btn:hover {
-            background: rgba(74, 222, 128, 0.2);
-            box-shadow: 0 0 20px rgba(74, 222, 128, 0.3);
+            background: rgba(74, 222, 128, 0.1);
+            color: rgba(74, 222, 128, 0.9);
+            border-color: rgba(74, 222, 128, 0.6);
             transform: translateY(-1px);
         }
 
@@ -372,7 +373,11 @@
 
             .show-around-btn {
                 position: static;
-                margin-bottom: 20px;
+                margin-bottom: 15px;
+                margin-left: auto;
+                margin-right: auto;
+                display: block;
+                width: fit-content;
             }
 
             .header {
