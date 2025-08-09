@@ -25,7 +25,7 @@ const Home = () => {
       <header className="App-header">
         <div className="text-center">
           <h1 className="text-4xl font-bold text-green-400 mb-8">Mainframe Doc Generator</h1>
-          <p className="text-lg mb-8">Access the Mainframe Documentation Generator</p>
+          <p className="text-lg mb-8">Create easy-to-read documentation from Mainframe JCL, PROC and COBOL, ASM, or PL/I code.</p>
           <div className="space-y-4">
             <a
               href="/mainframe-doc-generator.html"
