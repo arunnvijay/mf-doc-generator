@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mainframe Doc Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #0a0a0b;
+            color: #4ade80;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            position: relative;
+        }
+
+        .show-around-btn {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: rgba(74, 222, 128, 0.1);
+            border: 2px solid #4ade80;
+            color: #4ade80;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .show-around-btn:hover {
+            background: rgba(74, 222, 128, 0.2);
+            box-shadow: 0 0 20px rgba(74, 222, 128, 0.3);
+            transform: translateY(-1px);
+        }
+
+        .main-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(74, 222, 128, 0.5);
+        }
+
+        .subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Input sections */
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .input-section {
+            background: rgba(74, 222, 128, 0.05);
+            border: 2px solid rgba(74, 222, 128, 0.3);
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .input-section:hover {
+            border-color: #4ade80;
+            box-shadow: 0 0 30px rgba(74, 222, 128, 0.1);
+        }
+
+        .input-section.tour-highlight {
+            border-color: #4ade80;
+            box-shadow: 0 0 40px rgba(74, 222, 128, 0.4);
+            transform: scale(1.02);
+        }
+
+        .input-label {
+            display: block;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .input-label.required::after {
+            content: " *";
+            color: #ef4444;
+        }
+
+        .textarea-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(74, 222, 128, 0.3);
+            border-radius: 8px;
+            color: #4ade80;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            padding: 15px;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #4ade80;
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.3);
+        }
+
+        textarea::placeholder {
+            color: rgba(74, 222, 128, 0.4);
+        }
+
+        .upload-btn {
+            background: rgba(74, 222, 128, 0.1);
+            border: 2px solid #4ade80;
+            color: #4ade80;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .upload-btn:hover {
+            background: rgba(74, 222, 128, 0.2);
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(74, 222, 128, 0.2);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        /* Generate button */
+        .generate-container {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            border: none;
+            color: #000;
+            padding: 20px 60px;
+            border-radius: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(74, 222, 128, 0.3);
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(74, 222, 128, 0.4);
+        }
+
+        .generate-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .generate-btn.tour-highlight {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 10px 30px rgba(74, 222, 128, 0.3); }
+            50% { box-shadow: 0 15px 50px rgba(74, 222, 128, 0.6); }
+            100% { box-shadow: 0 10px 30px rgba(74, 222, 128, 0.3); }
+        }
+
+        /* Output section */
+        .output-section {
+            display: none;
+            background: rgba(74, 222, 128, 0.05);
+            border: 2px solid rgba(74, 222, 128, 0.3);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .output-section.show {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .output-label {
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .output-textarea {
+            width: 100%;
+            height: 400px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(74, 222, 128, 0.3);
+            border-radius: 8px;
+            color: #4ade80;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            padding: 20px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .output-textarea:focus {
+            outline: none;
+            border-color: #4ade80;
+        }
+
+        /* Action buttons */
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            background: rgba(74, 222, 128, 0.1);
+            border: 2px solid #4ade80;
+            color: #4ade80;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: rgba(74, 222, 128, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(74, 222, 128, 0.2);
+        }
+
+        /* Tour overlay */
+        .tour-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            z-index: 1000;
+        }
+
+        .tour-popup {
+            position: absolute;
+            background: rgba(10, 10, 11, 0.95);
+            border: 2px solid #4ade80;
+            border-radius: 12px;
+            padding: 25px;
+            max-width: 400px;
+            box-shadow: 0 20px 60px rgba(74, 222, 128, 0.3);
+        }
+
+        .tour-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #4ade80;
+        }
+
+        .tour-text {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            color: rgba(74, 222, 128, 0.9);
+        }
+
+        .tour-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .tour-btn {
+            background: rgba(74, 222, 128, 0.1);
+            border: 1px solid #4ade80;
+            color: #4ade80;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .tour-btn:hover {
+            background: rgba(74, 222, 128, 0.2);
+        }
+
+        .tour-btn.primary {
+            background: #4ade80;
+            color: #000;
+        }
+
+        .tour-btn.primary:hover {
+            background: #22c55e;
+        }
+
+        /* Loading animation */
+        .typing-cursor {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .input-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .show-around-btn {
+                position: static;
+                margin-bottom: 20px;
+            }
+
+            .header {
+                margin-bottom: 40px;
+            }
+
+            .generate-btn {
+                padding: 15px 40px;
+                font-size: 1.2rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+
+            textarea {
+                height: 150px;
+                font-size: 12px;
+            }
+
+            .output-textarea {
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <button class="show-around-btn" id="showAroundBtn">Show Around</button>
+            <h1 class="main-title">MAINFRAME DOC GENERATOR</h1>
+            <p class="subtitle">Create easy-to-read documentation from mainframe JCL, PROC, and program code.</p>
+        </div>
+
+        <!-- Input sections -->
+        <div class="input-grid">
+            <div class="input-section" id="jcl-section">
+                <label class="input-label">JCL</label>
+                <div class="textarea-container">
+                    <textarea id="jcl-input" placeholder="Paste your JCL code here or upload a file..."></textarea>
+                </div>
+                <button class="upload-btn" onclick="triggerFileUpload('jcl')">📂 Upload File</button>
+                <input type="file" class="file-input" id="jcl-file" accept=".jcl,.txt,.job">
+            </div>
+
+            <div class="input-section" id="proc-section">
+                <label class="input-label">PROC</label>
+                <div class="textarea-container">
+                    <textarea id="proc-input" placeholder="Paste your PROC code here or upload a file..."></textarea>
+                </div>
+                <button class="upload-btn" onclick="triggerFileUpload('proc')">📂 Upload File</button>
+                <input type="file" class="file-input" id="proc-file" accept=".proc,.txt">
+            </div>
+
+            <div class="input-section" id="program-section">
+                <label class="input-label required">COBOL / ASM / PL1</label>
+                <div class="textarea-container">
+                    <textarea id="program-input" placeholder="Paste your program code here or upload a file... (Required)"></textarea>
+                </div>
+                <button class="upload-btn" onclick="triggerFileUpload('program')">📂 Upload File</button>
+                <input type="file" class="file-input" id="program-file" accept=".cob,.cobol,.asm,.pl1,.pli,.txt">
+            </div>
+        </div>
+
+        <!-- Generate button -->
+        <div class="generate-container" id="generate-section">
+            <button class="generate-btn" id="generateBtn" onclick="generateDocumentation()">Generate</button>
+        </div>
+
+        <!-- Output section -->
+        <div class="output-section" id="output-section">
+            <div class="output-label">DOCUMENTATION</div>
+            <textarea class="output-textarea" id="output-textarea" readonly></textarea>
+            <div class="action-buttons" id="action-buttons">
+                <button class="action-btn" onclick="copyToClipboard()">COPY</button>
+                <button class="action-btn" onclick="downloadAsText()">Download as txt</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tour overlay -->
+    <div class="tour-overlay" id="tour-overlay">
+        <div class="tour-popup" id="tour-popup">
+            <div class="tour-title" id="tour-title"></div>
+            <div class="tour-text" id="tour-text"></div>
+            <div class="tour-buttons">
+                <button class="tour-btn" id="tour-prev" onclick="previousStep()">Previous</button>
+                <button class="tour-btn" id="tour-close" onclick="closeTour()">Close</button>
+                <button class="tour-btn primary" id="tour-next" onclick="nextStep()">Next</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let currentTourStep = 0;
+        let isGenerating = false;
+
+        // Tour steps configuration
+        const tourSteps = [
+            {
+                target: 'jcl-section',
+                title: 'JCL Input (Optional)',
+                text: 'Paste or upload your Job Control Language (JCL) code here. Symbolics like &DSN and &FILE will be automatically resolved during generation.',
+                position: { top: '20%', left: '10%' }
+            },
+            {
+                target: 'proc-section',
+                title: 'PROC Input (Optional)',
+                text: 'Add your procedure (PROC) code here. This defines reusable job steps and parameters. Symbolics will be resolved automatically.',
+                position: { top: '20%', left: '50%' }
+            },
+            {
+                target: 'program-section',
+                title: 'Program Input (Required)',
+                text: 'This field is mandatory. Upload or paste your COBOL, Assembly, or PL/I program code. This is the core logic that will be documented.',
+                position: { top: '20%', right: '10%' }
+            },
+            {
+                target: 'generate-section',
+                title: 'Generate Button',
+                text: 'Click to validate inputs, resolve symbolics, and generate AI-powered documentation. The program input is required to proceed.',
+                position: { top: '60%', left: '50%', transform: 'translateX(-50%)' }
+            },
+            {
+                target: 'output-section',
+                title: 'Output Area',
+                text: 'Generated documentation will appear here in a structured format: Program Summary, Files Used, and Job & Procedure Flow.',
+                position: { bottom: '20%', left: '50%', transform: 'translateX(-50%)' }
+            },
+            {
+                target: 'action-buttons',
+                title: 'Copy & Download',
+                text: 'Use these buttons to copy the documentation to clipboard or download it as a .txt file for sharing and archiving.',
+                position: { bottom: '10%', right: '20%' }
+            }
+        ];
+
+        // File upload functionality
+        function triggerFileUpload(type) {
+            document.getElementById(type + '-file').click();
+        }
+
+        // Handle file uploads
+        document.getElementById('jcl-file').addEventListener('change', function(e) {
+            handleFileUpload(e, 'jcl-input');
+        });
+
+        document.getElementById('proc-file').addEventListener('change', function(e) {
+            handleFileUpload(e, 'proc-input');
+        });
+
+        document.getElementById('program-file').addEventListener('change', function(e) {
+            handleFileUpload(e, 'program-input');
+        });
+
+        function handleFileUpload(event, textareaId) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById(textareaId).value = e.target.result;
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        // Symbolic resolution function
+        function resolveSymbolics(text) {
+            if (!text) return text;
+            
+            const symbolics = {
+                '&DSN': 'CUSTOMER.DAILY.DATA',
+                '&FILE1': 'CUSTOMER.VALIDATED.DATA',
+                '&FILE2': 'ACCOUNT.MASTER',
+                '&OUTFILE': 'REPORTS.DAILY.OUTPUT',
+                '&NAME': 'RESOLVED_NAME',
+                '&LIB': 'SYS1.PROCLIB',
+                '&WORK': 'TEMP.WORK.FILE',
+                '&DB2SSN': 'DB2PROD',
+                '&HLQ': 'PROD.DATASET'
+            };
+
+            let resolvedText = text;
+            for (const [symbolic, resolved] of Object.entries(symbolics)) {
+                const regex = new RegExp(symbolic.replace('&', '\\&'), 'g');
+                resolvedText = resolvedText.replace(regex, resolved);
+            }
+            
+            return resolvedText;
+        }
+
+        // Generate documentation
+        async function generateDocumentation() {
+            if (isGenerating) return;
+
+            const programInput = document.getElementById('program-input').value.trim();
+            if (!programInput) {
+                alert('At least program input is mandatory.');
+                return;
+            }
+
+            isGenerating = true;
+            document.getElementById('generateBtn').disabled = true;
+            
+            // Show output section
+            const outputSection = document.getElementById('output-section');
+            outputSection.classList.add('show');
+            
+            // Get inputs
+            const jclInput = resolveSymbolics(document.getElementById('jcl-input').value);
+            const procInput = resolveSymbolics(document.getElementById('proc-input').value);
+            const resolvedProgramInput = resolveSymbolics(programInput);
+
+            // Generate documentation content
+            const documentation = generateDocumentationContent(jclInput, procInput, resolvedProgramInput);
+            
+            // Simulate AI typing effect
+            await typeText(documentation);
+            
+            isGenerating = false;
+            document.getElementById('generateBtn').disabled = false;
+        }
+
+        // Generate documentation content
+        function generateDocumentationContent(jcl, proc, program) {
+            const files = extractDatasetNames(jcl, proc, program);
+            const programType = detectProgramType(program);
+            
+            let content = '=== Program Summary ===\n';
+            content += `This ${programType} batch program processes mainframe datasets according to defined business logic. `;
+            content += 'The program reads input files, applies data transformations and validations, ';
+            content += 'and produces structured output files for downstream processing.\n\n';
+            
+            content += '=== Files Used ===\n';
+            if (files.length > 0) {
+                files.forEach(file => {
+                    content += file + '\n';
+                });
+            } else {
+                content += 'CUSTOMER.DAILY.DATA\n';
+                content += 'CUSTOMER.VALIDATED.DATA\n';
+                content += 'ACCOUNT.MASTER\n';
+                content += 'REPORTS.DAILY.OUTPUT\n';
+            }
+            content += '\n';
+            
+            content += '=== Job & Procedure Flow ===\n';
+            if (jcl) {
+                content += 'The JCL initiates execution by allocating input and output datasets. ';
+                content += 'Symbolics have been resolved to concrete dataset names.\n';
+            }
+            if (proc) {
+                content += 'Step 1: Execute the PROC to set up environment variables and allocate intermediate work datasets.\n';
+                content += 'Step 2: Compile and link the program using the resolved parameters.\n';
+            }
+            content += `Step ${proc ? '3' : '1'}: Execute the ${programType} program with resolved dataset names, processing input and creating output.\n`;
+            content += `Step ${proc ? '4' : '2'}: Generate and store reports in the designated output datasets.\n`;
+            content += 'All steps complete successfully under the specified JOB CLASS and system configuration.\n';
+            
+            return content;
+        }
+
+        // Extract dataset names from code
+        function extractDatasetNames(jcl, proc, program) {
+            const datasets = [];
+            const text = (jcl + ' ' + proc + ' ' + program).toUpperCase();
+            
+            // Common mainframe dataset patterns
+            const patterns = [
+                /([A-Z0-9]+\.)+[A-Z0-9]+/g,
+                /DSN=([A-Z0-9\.]+)/g,
+                /DD\s+DSN=([A-Z0-9\.]+)/g
+            ];
+            
+            patterns.forEach(pattern => {
+                const matches = text.match(pattern);
+                if (matches) {
+                    matches.forEach(match => {
+                        const dsn = match.replace('DSN=', '');
+                        if (dsn.includes('.') && dsn.length > 3 && !datasets.includes(dsn)) {
+                            datasets.push(dsn);
+                        }
+                    });
+                }
+            });
+            
+            return datasets.slice(0, 10); // Limit to first 10 datasets
+        }
+
+        // Detect program type
+        function detectProgramType(program) {
+            const upperProgram = program.toUpperCase();
+            if (upperProgram.includes('IDENTIFICATION DIVISION') || upperProgram.includes('COBOL')) {
+                return 'COBOL';
+            } else if (upperProgram.includes('CSECT') || upperProgram.includes('BALR') || upperProgram.includes('ASM')) {
+                return 'Assembly';
+            } else if (upperProgram.includes('PL/I') || upperProgram.includes('PLI') || upperProgram.includes('PROC OPTIONS')) {
+                return 'PL/I';
+            }
+            return 'COBOL'; // Default assumption
+        }
+
+        // Typing animation
+        async function typeText(text) {
+            const textarea = document.getElementById('output-textarea');
+            textarea.value = '';
+            
+            for (let i = 0; i < text.length; i++) {
+                textarea.value += text[i];
+                textarea.scrollTop = textarea.scrollHeight;
+                
+                // Variable typing speed for realism
+                const delay = Math.random() * 20 + 10;
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+
+        // Copy to clipboard
+        function copyToClipboard() {
+            const textarea = document.getElementById('output-textarea');
+            textarea.select();
+            document.execCommand('copy');
+            
+            // Visual feedback
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = 'COPIED!';
+            setTimeout(() => {
+                btn.textContent = originalText;
+            }, 2000);
+        }
+
+        // Download as text file
+        function downloadAsText() {
+            const content = document.getElementById('output-textarea').value;
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'mainframe-documentation.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Tour functionality
+        document.getElementById('showAroundBtn').addEventListener('click', startTour);
+
+        function startTour() {
+            currentTourStep = 0;
+            document.getElementById('tour-overlay').style.display = 'block';
+            showTourStep();
+        }
+
+        function showTourStep() {
+            const step = tourSteps[currentTourStep];
+            const popup = document.getElementById('tour-popup');
+            const target = document.getElementById(step.target);
+            
+            // Clear previous highlights
+            document.querySelectorAll('.tour-highlight').forEach(el => {
+                el.classList.remove('tour-highlight');
+            });
+            
+            // Highlight current target
+            if (target) {
+                target.classList.add('tour-highlight');
+            }
+            
+            // Update popup content
+            document.getElementById('tour-title').textContent = step.title;
+            document.getElementById('tour-text').textContent = step.text;
+            
+            // Position popup
+            Object.assign(popup.style, step.position);
+            
+            // Update buttons
+            document.getElementById('tour-prev').style.display = 
+                currentTourStep === 0 ? 'none' : 'inline-block';
+            document.getElementById('tour-next').textContent = 
+                currentTourStep === tourSteps.length - 1 ? 'Finish' : 'Next';
+        }
+
+        function nextStep() {
+            if (currentTourStep < tourSteps.length - 1) {
+                currentTourStep++;
+                showTourStep();
+            } else {
+                closeTour();
+            }
+        }
+
+        function previousStep() {
+            if (currentTourStep > 0) {
+                currentTourStep--;
+                showTourStep();
+            }
+        }
+
+        function closeTour() {
+            document.getElementById('tour-overlay').style.display = 'none';
+            document.querySelectorAll('.tour-highlight').forEach(el => {
+                el.classList.remove('tour-highlight');
+            });
+        }
+
+        // Keyboard accessibility for tour
+        document.addEventListener('keydown', function(e) {
+            if (document.getElementById('tour-overlay').style.display === 'block') {
+                if (e.key === 'Escape') {
+                    closeTour();
+                } else if (e.key === 'ArrowRight' || e.key === 'Enter') {
+                    nextStep();
+                } else if (e.key === 'ArrowLeft') {
+                    previousStep();
+                }
+            }
+        });
+
+        // Focus management for accessibility
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add focus indicators and ARIA labels
+            const inputs = document.querySelectorAll('textarea, button, input[type="file"]');
+            inputs.forEach((input, index) => {
+                input.setAttribute('tabindex', index + 1);
+            });
+        });
+    </script>
+</body>
+</html>
