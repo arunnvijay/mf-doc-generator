@@ -351,6 +351,7 @@ async def check_llm_status():
             "model": HF_MODEL_URL.split('/')[-1] if HF_MODEL_URL else None,
             "available": False
         }
+@api_router.post("/generate-documentation", response_model=DocumentationResponse)
 async def generate_documentation(request: DocumentationRequest):
     """Generate mainframe documentation using Hugging Face LLM"""
     
