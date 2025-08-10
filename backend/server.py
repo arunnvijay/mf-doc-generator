@@ -78,54 +78,98 @@ async def get_status_checks():
     return [StatusCheck(**status_check) for status_check in status_checks]
 
 async def call_hugging_face_api(prompt: str, model_url: str = HF_MODEL_URL) -> str:
-    """Call Hugging Face Inference API"""
+    """Call Hugging Face Inference API with multiple model fallbacks"""
     headers = {
         "Authorization": f"Bearer {HF_API_KEY}",
         "Content-Type": "application/json"
     }
     
+    # Shortened prompt for better LLM performance
+    short_prompt = f"Generate mainframe documentation for: {prompt[:500]}..."
+    
     payload = {
-        "inputs": prompt,
+        "inputs": short_prompt,
         "parameters": {
-            "max_length": 2000,
+            "max_length": 1000,
             "temperature": 0.7,
             "do_sample": True,
-            "top_p": 0.9
+            "top_p": 0.9,
+            "return_full_text": False
         }
     }
     
-    try:
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            response = await client.post(model_url, headers=headers, json=payload)
+    # Try primary model and fallbacks
+    models_to_try = [model_url] + FALLBACK_MODELS
+    
+    for model in models_to_try:
+        try:
+            logging.info(f"Trying Hugging Face model: {model}")
             
-            if response.status_code == 503:
-                # Model is loading, wait and retry
-                await asyncio.sleep(20)
-                response = await client.post(model_url, headers=headers, json=payload)
-            
-            if response.status_code != 200:
-                logging.error(f"HF API error: {response.status_code} - {response.text}")
-                raise HTTPException(status_code=500, detail=f"HF API error: {response.text}")
-            
-            result = response.json()
-            
-            # Handle different response formats
-            if isinstance(result, list) and len(result) > 0:
-                if 'generated_text' in result[0]:
-                    return result[0]['generated_text']
-                elif isinstance(result[0], str):
-                    return result[0]
-            elif isinstance(result, dict) and 'generated_text' in result:
-                return result['generated_text']
-            elif isinstance(result, str):
-                return result
-            
-            return str(result)
-            
-    except Exception as e:
-        logging.error(f"Error calling HF API: {str(e)}")
-        # Fallback to rule-based documentation
-        return generate_fallback_documentation(prompt)
+            async with httpx.AsyncClient(timeout=30.0) as client:
+                response = await client.post(model, headers=headers, json=payload)
+                
+                logging.info(f"HF API Response Status: {response.status_code}")
+                
+                if response.status_code == 503:
+                    # Model is loading, wait and retry once
+                    logging.info("Model loading, waiting 20 seconds...")
+                    await asyncio.sleep(20)
+                    response = await client.post(model, headers=headers, json=payload)
+                
+                if response.status_code == 200:
+                    result = response.json()
+                    logging.info(f"HF API Success with model: {model}")
+                    
+                    # Handle different response formats
+                    if isinstance(result, list) and len(result) > 0:
+                        if 'generated_text' in result[0]:
+                            generated_text = result[0]['generated_text']
+                            return format_llm_response(generated_text, prompt)
+                        elif isinstance(result[0], str):
+                            return format_llm_response(result[0], prompt)
+                    elif isinstance(result, dict) and 'generated_text' in result:
+                        return format_llm_response(result['generated_text'], prompt)
+                    elif isinstance(result, str):
+                        return format_llm_response(result, prompt)
+                
+                else:
+                    logging.error(f"HF API error with {model}: {response.status_code} - {response.text}")
+                    
+        except Exception as e:
+            logging.error(f"Error calling HF API with {model}: {str(e)}")
+            continue
+    
+    # All models failed, use fallback
+    logging.warning("All Hugging Face models failed, using rule-based fallback")
+    return generate_fallback_documentation(prompt)
+
+def format_llm_response(generated_text: str, original_prompt: str) -> str:
+    """Format LLM response into proper documentation structure"""
+    
+    # If the response looks like proper documentation, use it
+    if "1. Overview" in generated_text or "Overview" in generated_text:
+        return f"=== AI-GENERATED MAINFRAME DOCUMENTATION ===\n\n{generated_text}"
+    
+    # Otherwise, structure it properly
+    structured_doc = f"""=== AI-GENERATED MAINFRAME DOCUMENTATION ===
+
+1. Overview
+{generated_text[:300]}...
+
+2. Analysis
+The LLM has analyzed the provided mainframe code and generated insights about its functionality and structure.
+
+3. AI Insights
+{generated_text[300:600] if len(generated_text) > 300 else "Additional analysis and recommendations based on code patterns."}
+
+4. Recommendations
+- Review the generated analysis for accuracy
+- Consider the AI suggestions for code optimization
+- Validate business logic alignment
+
+(Note: This documentation was generated using Hugging Face LLM)
+"""
+    return structured_doc
 
 def generate_fallback_documentation(prompt: str) -> str:
     """Fallback documentation generator when LLM is unavailable"""
