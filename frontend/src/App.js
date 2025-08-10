@@ -33,9 +33,25 @@ const Home = () => {
             >
               Open Mainframe Doc Generator
             </a>
-            <p className="text-sm text-green-300">
-              Or copy this URL: {window.location.origin}/mainframe-doc-generator.html
-            </p>
+            <div className="text-sm text-green-300 max-w-2xl mx-auto">
+              <p className="mb-3">🚀 <strong>Now with AI-Powered Documentation Generation!</strong></p>
+              <div className="bg-gray-800 rounded-lg p-4 text-left">
+                <p className="text-green-400 font-semibold mb-2">Features:</p>
+                <ul className="list-disc list-inside space-y-1 text-green-300">
+                  <li>✅ Hugging Face LLM Integration (Free)</li>
+                  <li>✅ Structured Documentation Format</li>
+                  <li>✅ Mobile-Responsive Design</li>
+                  <li>✅ Interactive Guided Tour</li>
+                  <li>✅ Automatic Fallback Mode</li>
+                </ul>
+                <p className="text-green-400 font-semibold mt-4 mb-2">Setup Instructions:</p>
+                <p className="text-xs text-green-300">
+                  1. Get free Hugging Face API key at huggingface.co<br/>
+                  2. Add to backend/.env: HUGGING_FACE_API_KEY=your_key<br/>
+                  3. Restart backend: sudo supervisorctl restart backend
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </header>
