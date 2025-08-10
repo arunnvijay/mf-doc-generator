@@ -299,7 +299,58 @@ Generate technical, accurate documentation:"""
 
     return prompt
 
-@api_router.post("/generate-documentation", response_model=DocumentationResponse)
+@api_router.get("/llm-status")
+async def check_llm_status():
+    """Check the status of LLM integration"""
+    
+    if not HF_API_KEY:
+        return {
+            "status": "no_key",
+            "message": "No Hugging Face API key configured",
+            "model": None,
+            "available": False
+        }
+    
+    # Quick test of the API key
+    try:
+        headers = {"Authorization": f"Bearer {HF_API_KEY}"}
+        async with httpx.AsyncClient(timeout=10.0) as client:
+            # Test with a simple request
+            response = await client.post(
+                HF_MODEL_URL,
+                headers=headers,
+                json={"inputs": "test"}
+            )
+            
+            if response.status_code == 200:
+                return {
+                    "status": "working",
+                    "message": "Hugging Face API is working",
+                    "model": HF_MODEL_URL.split('/')[-1],
+                    "available": True
+                }
+            elif response.status_code == 503:
+                return {
+                    "status": "loading", 
+                    "message": "Model is loading, please wait",
+                    "model": HF_MODEL_URL.split('/')[-1],
+                    "available": False
+                }
+            else:
+                return {
+                    "status": "error",
+                    "message": f"API error: {response.status_code}",
+                    "model": HF_MODEL_URL.split('/')[-1], 
+                    "available": False
+                }
+                
+    except Exception as e:
+        return {
+            "status": "error",
+            "message": f"Connection error: {str(e)}",
+            "model": HF_MODEL_URL.split('/')[-1] if HF_MODEL_URL else None,
+            "available": False
+        }
 async def generate_documentation(request: DocumentationRequest):
     """Generate mainframe documentation using Hugging Face LLM"""
     
