@@ -31,7 +31,7 @@ api_router = APIRouter(prefix="/api")
 
 # Hugging Face configuration
 HF_API_KEY = os.getenv('HUGGING_FACE_API_KEY', '')
-HF_MODEL_URL = "https://api-inference.huggingface.co/models/gpt2"
+HF_MODEL_URL = "https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium"
 
 
 # Define Models
