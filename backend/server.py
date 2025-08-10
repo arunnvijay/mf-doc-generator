@@ -221,6 +221,7 @@ async def generate_documentation(request: DocumentationRequest):
         
         # Call Hugging Face API or fallback
         if HF_API_KEY:
+            logging.info(f"Attempting to call HF API with key: {HF_API_KEY[:10]}...")
             documentation = await call_hugging_face_api(prompt)
         else:
             logging.warning("No Hugging Face API key provided, using fallback documentation")
