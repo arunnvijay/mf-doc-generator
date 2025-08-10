@@ -12,6 +12,7 @@ from datetime import datetime
 import httpx
 import json
 import asyncio
+import asyncio
 
 
 ROOT_DIR = Path(__file__).parent
