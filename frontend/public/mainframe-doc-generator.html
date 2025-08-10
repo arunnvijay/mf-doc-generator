@@ -483,6 +483,9 @@
         <!-- Generate button -->
         <div class="generate-container" id="generate-section">
             <button class="generate-btn" id="generateBtn" onclick="generateDocumentation()">Generate</button>
+            <div id="llm-status" style="margin-top: 15px; font-size: 14px; opacity: 0.8; text-align: center;">
+                <span id="status-text">Ready to generate documentation</span>
+            </div>
         </div>
 
         <!-- Output section -->
@@ -620,8 +623,11 @@
 
             isGenerating = true;
             const generateBtn = document.getElementById('generateBtn');
+            const statusText = document.getElementById('status-text');
+            
             generateBtn.disabled = true;
             generateBtn.textContent = 'Generating...';
+            statusText.textContent = 'Calling Hugging Face LLM API...';
             
             // Show output section
             const outputSection = document.getElementById('output-section');
@@ -652,11 +658,21 @@
 
                 const data = await response.json();
                 
+                // Check if it's LLM-generated or fallback
+                if (data.documentation.includes('AI-GENERATED')) {
+                    statusText.textContent = '✅ Generated using Hugging Face LLM';
+                } else if (data.documentation.includes('RULE-BASED')) {
+                    statusText.textContent = '⚠️ Using rule-based analysis (LLM unavailable)';
+                } else {
+                    statusText.textContent = '✅ Documentation generated successfully';
+                }
+                
                 // Simulate typing effect with the LLM response
                 await typeText(data.documentation);
                 
             } catch (error) {
                 console.error('Error generating documentation:', error);
+                statusText.textContent = '❌ API error - using fallback generation';
                 
                 // Fallback to client-side generation
                 const fallbackDoc = generateFallbackDocumentation(jclInput, procInput, programInput);
@@ -666,6 +682,11 @@
             isGenerating = false;
             generateBtn.disabled = false;
             generateBtn.textContent = 'Generate';
+            
+            // Reset status after 5 seconds
+            setTimeout(() => {
+                statusText.textContent = 'Ready to generate documentation';
+            }, 5000);
         }
 
         // Generate session ID
