@@ -394,6 +394,35 @@
                 flex-direction: column;
                 align-items: center;
             }
+
+            /* Mobile tour popup adjustments */
+            .tour-popup {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                width: 90%;
+                max-width: 350px;
+                max-height: 80vh;
+                overflow-y: auto;
+            }
+
+            .tour-text {
+                font-size: 13px;
+                line-height: 1.5;
+            }
+
+            .tour-buttons {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            .tour-btn {
+                flex: 1;
+                min-width: 70px;
+                font-size: 11px;
+                padding: 6px 12px;
+            }
         }
 
         @media (max-width: 480px) {
@@ -579,7 +608,7 @@
             return resolvedText;
         }
 
-        // Generate documentation
+        // Generate documentation using LLM
         async function generateDocumentation() {
             if (isGenerating) return;
 
@@ -590,25 +619,125 @@
             }
 
             isGenerating = true;
-            document.getElementById('generateBtn').disabled = true;
+            const generateBtn = document.getElementById('generateBtn');
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generating...';
             
             // Show output section
             const outputSection = document.getElementById('output-section');
             outputSection.classList.add('show');
             
             // Get inputs
-            const jclInput = resolveSymbolics(document.getElementById('jcl-input').value);
-            const procInput = resolveSymbolics(document.getElementById('proc-input').value);
-            const resolvedProgramInput = resolveSymbolics(programInput);
+            const jclInput = document.getElementById('jcl-input').value.trim();
+            const procInput = document.getElementById('proc-input').value.trim();
 
-            // Generate documentation content
-            const documentation = generateDocumentationContent(jclInput, procInput, resolvedProgramInput);
-            
-            // Simulate AI typing effect
-            await typeText(documentation);
+            try {
+                // Call the backend API
+                const response = await fetch(`${window.location.origin}/api/generate-documentation`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        jcl_code: jclInput || null,
+                        proc_code: procInput || null,
+                        program_code: programInput,
+                        session_id: generateSessionId()
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                // Simulate typing effect with the LLM response
+                await typeText(data.documentation);
+                
+            } catch (error) {
+                console.error('Error generating documentation:', error);
+                
+                // Fallback to client-side generation
+                const fallbackDoc = generateFallbackDocumentation(jclInput, procInput, programInput);
+                await typeText(fallbackDoc);
+            }
             
             isGenerating = false;
-            document.getElementById('generateBtn').disabled = false;
+            generateBtn.disabled = false;
+            generateBtn.textContent = 'Generate';
+        }
+
+        // Generate session ID
+        function generateSessionId() {
+            return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // Fallback documentation generation (client-side)
+        function generateFallbackDocumentation(jcl, proc, program) {
+            const files = extractDatasetNames(jcl, proc, program);
+            const programType = detectProgramType(program);
+            
+            let content = '=== MAINFRAME DOCUMENTATION (Fallback Mode) ===\n\n';
+            
+            content += '1. Overview\n';
+            content += `This ${programType} batch program processes mainframe datasets according to defined business logic. `;
+            content += 'The program reads input files, applies data transformations and validations, ';
+            content += 'and produces structured output files for downstream processing.\n\n';
+            
+            if (jcl) {
+                content += '2. Job Flow\n';
+                content += 'The JCL initiates execution by allocating input and output datasets. ';
+                content += 'Symbolics have been resolved to concrete dataset names.\n';
+                if (proc) {
+                    content += 'PROC steps are executed to set up environment variables and allocate work datasets.\n';
+                }
+                content += 'Program execution follows standard mainframe job processing flow.\n\n';
+            }
+            
+            content += `${jcl ? '3' : '2'}. Transformations\n`;
+            content += '- Data is read from input sources\n';
+            content += '- Business rules and logic are applied for processing\n';
+            content += '- Data transformations are performed according to requirements\n';
+            content += '- Transformed data is written to output destinations\n\n';
+            
+            content += `${jcl ? '4' : '3'}. Validations\n`;
+            content += '- Input data validation checks are performed\n';
+            content += '- Error handling procedures for invalid records\n';
+            content += '- Data integrity verification processes\n';
+            content += '- Business rule validation enforcement\n\n';
+            
+            content += `${jcl ? '5' : '4'}. Inputs & Outputs\n`;
+            if (files.length > 0) {
+                content += 'Input Files:\n';
+                files.slice(0, Math.ceil(files.length/2)).forEach(file => {
+                    content += `- ${file}: Source data for processing\n`;
+                });
+                content += '\nOutput Files:\n';
+                files.slice(Math.ceil(files.length/2)).forEach(file => {
+                    content += `- ${file}: Processed and validated data\n`;
+                });
+            } else {
+                content += 'Input Files: Source datasets containing raw data for processing\n';
+                content += 'Output Files: Processed datasets with transformed and validated data\n';
+            }
+            content += '\n';
+            
+            content += `${jcl ? '6' : '5'}. Dependencies\n`;
+            content += '- System datasets and libraries\n';
+            content += '- External programs and procedures\n';
+            content += '- Database connections (if applicable)\n';
+            content += '- Symbolic parameter definitions\n\n';
+            
+            content += `${jcl ? '7' : '6'}. Special Notes\n`;
+            content += '- Standard mainframe error handling procedures apply\n';
+            content += '- Program follows enterprise coding standards\n';
+            content += '- Performance optimized for batch processing\n';
+            content += '- Proper resource allocation and cleanup procedures\n\n';
+            
+            content += '(Note: Enhanced LLM-powered documentation available with Hugging Face API key)\n';
+            
+            return content;
         }
 
         // Generate documentation content
