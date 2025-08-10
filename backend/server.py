@@ -28,6 +28,10 @@ app = FastAPI()
 # Create a router with the /api prefix
 api_router = APIRouter(prefix="/api")
 
+# Hugging Face configuration
+HF_API_KEY = os.getenv('HUGGING_FACE_API_KEY', '')
+HF_MODEL_URL = "https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium"
+
 
 # Define Models
 class StatusCheck(BaseModel):
