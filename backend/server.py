@@ -42,6 +42,16 @@ class StatusCheck(BaseModel):
 class StatusCheckCreate(BaseModel):
     client_name: str
 
+class DocumentationRequest(BaseModel):
+    jcl_code: Optional[str] = None
+    proc_code: Optional[str] = None
+    program_code: str
+    session_id: Optional[str] = None
+
+class DocumentationResponse(BaseModel):
+    documentation: str
+    session_id: str
+
 # Add your routes to the router instead of directly to app
 @api_router.get("/")
 async def root():
