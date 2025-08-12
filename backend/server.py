@@ -369,7 +369,16 @@ async def generate_documentation(request: DocumentationRequest):
         # Call Hugging Face API or fallback
         if HF_API_KEY:
             logging.info(f"Attempting to call HF API with key: {HF_API_KEY[:10]}...")
-            documentation = await call_hugging_face_api(prompt)
+            try:
+                documentation = await call_hugging_face_api(prompt)
+                # If we get a meaningful response, use it
+                if "MAINFRAME DOCUMENTATION" in documentation or len(documentation) > 200:
+                    logging.info("Successfully generated LLM documentation")
+                else:
+                    raise Exception("LLM response too short, using fallback")
+            except Exception as e:
+                logging.warning(f"LLM failed: {str(e)}, using enhanced fallback")
+                documentation = generate_fallback_documentation(prompt)
         else:
             logging.warning("No Hugging Face API key provided, using fallback documentation")
             documentation = generate_fallback_documentation(prompt)
