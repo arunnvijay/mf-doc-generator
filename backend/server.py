@@ -31,12 +31,12 @@ api_router = APIRouter(prefix="/api")
 
 # Hugging Face configuration  
 HF_API_KEY = os.getenv('HUGGING_FACE_API_KEY', '')
-HF_MODEL_URL = "https://api-inference.huggingface.co/models/Fsoft-AIC/XMAiNframe-instruct-7b"
+HF_MODEL_URL = "https://api-inference.huggingface.co/models/microsoft/CodeBERT-base"
 
 # Alternative models to try if primary fails
 FALLBACK_MODELS = [
-    "https://api-inference.huggingface.co/models/bigcode/starcoder2-15b",
-    "https://api-inference.huggingface.co/models/bigcode/starcoder2-7b", 
+    "https://api-inference.huggingface.co/models/microsoft/codebert-base-mlm",
+    "https://api-inference.huggingface.co/models/huggingface/CodeBERTa-small-v1", 
     "https://api-inference.huggingface.co/models/microsoft/DialoGPT-medium"
 ]
 
