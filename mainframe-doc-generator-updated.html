@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mainframe Doc Generator</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'JetBrains Mono', monospace;
+            background-color: #0a0a0b;
+            color: #4ade80;
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            position: relative;
+            margin-top: 20px;
+        }
+
+        .show-around-btn {
+            position: absolute;
+            top: 20px;
+            right: 10px;
+            background: rgba(74, 222, 128, 0.05);
+            border: 1px solid rgba(74, 222, 128, 0.4);
+            color: rgba(74, 222, 128, 0.7);
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 400;
+            transition: all 0.3s ease;
+            z-index: 10;
+        }
+
+        .show-around-btn:hover {
+            background: rgba(74, 222, 128, 0.1);
+            color: rgba(74, 222, 128, 0.9);
+            border-color: rgba(74, 222, 128, 0.6);
+            transform: translateY(-1px);
+        }
+
+        .main-title {
+            font-size: clamp(2.5rem, 5vw, 4rem);
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px rgba(74, 222, 128, 0.5);
+        }
+
+        .subtitle {
+            font-size: clamp(0.9rem, 2vw, 1.1rem);
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        /* Input sections */
+        .input-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 50px;
+        }
+
+        .input-section {
+            background: rgba(74, 222, 128, 0.05);
+            border: 2px solid rgba(74, 222, 128, 0.3);
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s ease;
+        }
+
+        .input-section:hover {
+            border-color: #4ade80;
+            box-shadow: 0 0 30px rgba(74, 222, 128, 0.1);
+        }
+
+        .input-label {
+            display: block;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .input-label.optional::after {
+            content: " (Optional)";
+            color: rgba(74, 222, 128, 0.6);
+            font-size: 0.9rem;
+        }
+
+        .textarea-container {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 200px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(74, 222, 128, 0.3);
+            border-radius: 8px;
+            color: #4ade80;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            padding: 15px;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: #4ade80;
+            box-shadow: 0 0 15px rgba(74, 222, 128, 0.3);
+        }
+
+        textarea::placeholder {
+            color: rgba(74, 222, 128, 0.4);
+        }
+
+        .upload-btn {
+            background: rgba(74, 222, 128, 0.1);
+            border: 2px solid #4ade80;
+            color: #4ade80;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
+        }
+
+        .upload-btn:hover {
+            background: rgba(74, 222, 128, 0.2);
+            transform: translateY(-1px);
+            box-shadow: 0 5px 15px rgba(74, 222, 128, 0.2);
+        }
+
+        .file-input {
+            display: none;
+        }
+
+        /* Generate button */
+        .generate-container {
+            text-align: center;
+            margin-bottom: 50px;
+        }
+
+        .generate-btn {
+            background: linear-gradient(135deg, #4ade80, #22c55e);
+            border: none;
+            color: #000;
+            padding: 20px 60px;
+            border-radius: 12px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 30px rgba(74, 222, 128, 0.3);
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(74, 222, 128, 0.4);
+        }
+
+        .generate-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        #llm-status {
+            margin-top: 15px;
+            font-size: 14px;
+            opacity: 0.8;
+            text-align: center;
+        }
+
+        /* Output section */
+        .output-section {
+            display: none;
+            background: rgba(74, 222, 128, 0.05);
+            border: 2px solid rgba(74, 222, 128, 0.3);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        .output-section.show {
+            display: block;
+            animation: slideIn 0.5s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .output-label {
+            font-size: 1.5rem;
+            font-weight: 600;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .output-textarea {
+            width: 100%;
+            height: 400px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid rgba(74, 222, 128, 0.3);
+            border-radius: 8px;
+            color: #4ade80;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            padding: 20px;
+            resize: vertical;
+            line-height: 1.6;
+        }
+
+        .output-textarea:focus {
+            outline: none;
+            border-color: #4ade80;
+        }
+
+        /* Action buttons */
+        .action-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .action-btn {
+            background: rgba(74, 222, 128, 0.1);
+            border: 2px solid #4ade80;
+            color: #4ade80;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .action-btn:hover {
+            background: rgba(74, 222, 128, 0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(74, 222, 128, 0.2);
+        }
+
+        /* Show Around Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: rgba(10, 10, 11, 0.95);
+            border: 2px solid #4ade80;
+            border-radius: 12px;
+            padding: 30px;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(74, 222, 128, 0.3);
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(74, 222, 128, 0.3);
+            padding-bottom: 15px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #4ade80;
+        }
+
+        .modal-close {
+            background: none;
+            border: 1px solid #4ade80;
+            color: #4ade80;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            transition: all 0.3s ease;
+        }
+
+        .modal-close:hover {
+            background: rgba(74, 222, 128, 0.2);
+        }
+
+        .modal-body {
+            line-height: 1.6;
+            color: rgba(74, 222, 128, 0.9);
+        }
+
+        .modal-section {
+            margin-bottom: 25px;
+        }
+
+        .modal-section h3 {
+            color: #4ade80;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            border-left: 3px solid #4ade80;
+            padding-left: 10px;
+        }
+
+        .modal-section p {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .modal-section ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        .modal-section li {
+            margin-bottom: 5px;
+            position: relative;
+        }
+
+        .modal-section li::before {
+            content: "▶";
+            color: #4ade80;
+            position: absolute;
+            left: -15px;
+        }
+
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .input-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .show-around-btn {
+                position: static;
+                margin-bottom: 5px;
+                margin-left: auto;
+                margin-right: auto;
+                display: block;
+                width: fit-content;
+            }
+
+            .header {
+                margin-bottom: 40px;
+                margin-top: 10px;
+            }
+
+            .generate-btn {
+                padding: 15px 40px;
+                font-size: 1.2rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .modal-content {
+                max-width: 95vw;
+                max-height: 95vh;
+                padding: 20px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 15px;
+            }
+
+            textarea {
+                height: 150px;
+                font-size: 12px;
+            }
+
+            .output-textarea {
+                height: 300px;
+            }
+        }
+
+        /* Loading animation */
+        .typing-cursor {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <button class="show-around-btn" id="showAroundBtn">Show Around</button>
+            <h1 class="main-title">MAINFRAME DOC GENERATOR</h1>
+            <p class="subtitle">Create easy-to-read documentation from Mainframe JCL, PROC and COBOL, ASM, or PL/I code.</p>
+        </div>
+
+        <!-- Input sections -->
+        <div class="input-grid">
+            <div class="input-section" id="jcl-section">
+                <label class="input-label optional">JCL</label>
+                <div class="textarea-container">
+                    <textarea id="jcl-input" placeholder="Paste your JCL code here or upload a file... (Optional)"></textarea>
+                </div>
+                <button class="upload-btn" onclick="triggerFileUpload('jcl')">📂 Upload File</button>
+                <input type="file" class="file-input" id="jcl-file" accept=".jcl,.txt,.job">
+            </div>
+
+            <div class="input-section" id="proc-section">
+                <label class="input-label optional">PROC</label>
+                <div class="textarea-container">
+                    <textarea id="proc-input" placeholder="Paste your PROC code here or upload a file... (Optional)"></textarea>
+                </div>
+                <button class="upload-btn" onclick="triggerFileUpload('proc')">📂 Upload File</button>
+                <input type="file" class="file-input" id="proc-file" accept=".proc,.txt">
+            </div>
+
+            <div class="input-section" id="program-section">
+                <label class="input-label optional">COBOL / ASM / PL1</label>
+                <div class="textarea-container">
+                    <textarea id="program-input" placeholder="Paste your program code here or upload a file... (Optional)"></textarea>
+                </div>
+                <button class="upload-btn" onclick="triggerFileUpload('program')">📂 Upload File</button>
+                <input type="file" class="file-input" id="program-file" accept=".cob,.cobol,.asm,.pl1,.pli,.txt">
+            </div>
+        </div>
+
+        <!-- Generate button -->
+        <div class="generate-container" id="generate-section">
+            <button class="generate-btn" id="generateBtn" onclick="generateDocumentation()">Generate</button>
+            <div id="llm-status">
+                <span id="status-text">Ready to generate documentation</span>
+            </div>
+        </div>
+
+        <!-- Output section -->
+        <div class="output-section" id="output-section">
+            <div class="output-label">DOCUMENTATION</div>
+            <textarea class="output-textarea" id="output-textarea" readonly></textarea>
+            <div class="action-buttons" id="action-buttons">
+                <button class="action-btn" onclick="copyToClipboard()">COPY</button>
+                <button class="action-btn" onclick="downloadAsText()">Download as txt</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Show Around Modal -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Mainframe Documentation Generator - Complete Guide</h2>
+                <button class="modal-close" onclick="closeModal()">Close</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-section">
+                    <h3>JCL Documentation</h3>
+                    <p>Job Control Language (JCL) defines how your mainframe job executes:</p>
+                    <ul>
+                        <li>Job scheduling and resource allocation</li>
+                        <li>Dataset definitions and file handling</li>
+                        <li>Step execution order and dependencies</li>
+                        <li>System parameter configuration</li>
+                        <li>Output routing and disposition</li>
+                    </ul>
+                    <p><strong>Usage:</strong> Paste your JCL code or upload a .jcl/.job file. The system will document job flow, resource requirements, and execution logic.</p>
+                </div>
+
+                <div class="modal-section">
+                    <h3>PROC Documentation</h3>
+                    <p>Procedures (PROC) are reusable JCL components that standardize operations:</p>
+                    <ul>
+                        <li>Parameterized job steps and templates</li>
+                        <li>Symbolic parameter definitions and substitution</li>
+                        <li>Standardized resource allocation patterns</li>
+                        <li>Common utility program invocations</li>
+                        <li>Error handling and recovery procedures</li>
+                    </ul>
+                    <p><strong>Usage:</strong> Upload your PROC definitions to document standardized processing patterns and parameter usage.</p>
+                </div>
+
+                <div class="modal-section">
+                    <h3>Program Documentation</h3>
+                    <p>COBOL, Assembly, or PL/I program analysis covers:</p>
+                    <ul>
+                        <li>Business logic and data transformations</li>
+                        <li>File structures and record layouts</li>
+                        <li>Validation rules and error handling</li>
+                        <li>Database interactions and SQL operations</li>
+                        <li>Performance considerations and optimizations</li>
+                    </ul>
+                    <p><strong>Usage:</strong> Provide your program source code for comprehensive technical documentation including data flow and business rules.</p>
+                </div>
+
+                <div class="modal-section">
+                    <h3>AI-Powered Analysis</h3>
+                    <p>Our Google Gemini integration provides:</p>
+                    <ul>
+                        <li>Intelligent code analysis and pattern recognition</li>
+                        <li>Contextual documentation generation</li>
+                        <li>Cross-component relationship mapping</li>
+                        <li>Best practice recommendations</li>
+                        <li>Modernization insights and suggestions</li>
+                    </ul>
+                    <p><strong>Note:</strong> You can provide any combination of JCL, PROC, and Program code. The system adapts documentation to analyze only the components you provide.</p>
+                </div>
+
+                <div class="modal-section">
+                    <h3>Features</h3>
+                    <ul>
+                        <li><strong>Flexible Input:</strong> Any combination of JCL, PROC, or Program code</li>
+                        <li><strong>File Upload:</strong> Support for various mainframe file formats</li>
+                        <li><strong>Smart Analysis:</strong> Google Gemini AI for comprehensive documentation</li>
+                        <li><strong>Structured Output:</strong> Consistent 7-section documentation format</li>
+                        <li><strong>Export Options:</strong> Copy to clipboard or download as text file</li>
+                        <li><strong>Mobile Responsive:</strong> Works on all devices and screen sizes</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let isGenerating = false;
+
+        // Backend configuration
+        const BACKEND_URL = 'http://localhost:8002'; // Node.js backend
+        const API = `${BACKEND_URL}/api`;
+
+        // File upload functionality
+        function triggerFileUpload(type) {
+            document.getElementById(type + '-file').click();
+        }
+
+        // Handle file uploads
+        document.getElementById('jcl-file').addEventListener('change', function(e) {
+            handleFileUpload(e, 'jcl-input');
+        });
+
+        document.getElementById('proc-file').addEventListener('change', function(e) {
+            handleFileUpload(e, 'proc-input');
+        });
+
+        document.getElementById('program-file').addEventListener('change', function(e) {
+            handleFileUpload(e, 'program-input');
+        });
+
+        function handleFileUpload(event, textareaId) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById(textareaId).value = e.target.result;
+                };
+                reader.readAsText(file);
+            }
+        }
+
+        // Generate documentation using Google Gemini
+        async function generateDocumentation() {
+            if (isGenerating) return;
+
+            // Get inputs
+            const jclInput = document.getElementById('jcl-input').value.trim();
+            const procInput = document.getElementById('proc-input').value.trim();
+            const programInput = document.getElementById('program-input').value.trim();
+
+            // Validation: At least one input must be provided
+            if (!jclInput && !procInput && !programInput) {
+                alert('At least one input (JCL, PROC, or Program) must be provided.');
+                return;
+            }
+
+            isGenerating = true;
+            const generateBtn = document.getElementById('generateBtn');
+            const statusText = document.getElementById('status-text');
+            
+            generateBtn.disabled = true;
+            generateBtn.textContent = 'Generating...';
+            statusText.textContent = 'Calling Google Gemini API...';
+            
+            // Show output section
+            const outputSection = document.getElementById('output-section');
+            outputSection.classList.add('show');
+
+            try {
+                // Call the Node.js backend API
+                const response = await fetch(`${API}/generate-documentation`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        jcl_code: jclInput || null,
+                        proc_code: procInput || null,
+                        program_code: programInput || null,
+                        session_id: generateSessionId()
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                
+                // Check if LLM call failed
+                if (data.documentation === 'LLM call failed') {
+                    statusText.textContent = '❌ LLM call failed';
+                    await typeText('LLM call failed');
+                } else {
+                    statusText.textContent = '✅ Generated using Google Gemini';
+                    await typeText(data.documentation);
+                }
+                
+            } catch (error) {
+                console.error('Error generating documentation:', error);
+                statusText.textContent = '❌ LLM call failed';
+                await typeText('LLM call failed');
+            }
+            
+            isGenerating = false;
+            generateBtn.disabled = false;
+            generateBtn.textContent = 'Generate';
+            
+            // Reset status after 5 seconds
+            setTimeout(() => {
+                statusText.textContent = 'Ready to generate documentation';
+            }, 5000);
+        }
+
+        // Generate session ID
+        function generateSessionId() {
+            return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        // Typing animation
+        async function typeText(text) {
+            const textarea = document.getElementById('output-textarea');
+            textarea.value = '';
+            
+            for (let i = 0; i < text.length; i++) {
+                textarea.value += text[i];
+                textarea.scrollTop = textarea.scrollHeight;
+                
+                // Variable typing speed for realism
+                const delay = Math.random() * 20 + 10;
+                await new Promise(resolve => setTimeout(resolve, delay));
+            }
+        }
+
+        // Copy to clipboard
+        function copyToClipboard() {
+            const textarea = document.getElementById('output-textarea');
+            textarea.select();
+            document.execCommand('copy');
+            
+            // Visual feedback
+            const btn = event.target;
+            const originalText = btn.textContent;
+            btn.textContent = 'COPIED!';
+            setTimeout(() => {
+                btn.textContent = originalText;
+            }, 2000);
+        }
+
+        // Download as text file
+        function downloadAsText() {
+            const content = document.getElementById('output-textarea').value;
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'mainframe-documentation.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // Show Around Modal functionality
+        document.getElementById('showAroundBtn').addEventListener('click', showModal);
+
+        function showModal() {
+            document.getElementById('modal-overlay').style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
+        }
+
+        function closeModal() {
+            document.getElementById('modal-overlay').style.display = 'none';
+            document.body.style.overflow = 'auto'; // Restore scrolling
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('modal-overlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Keyboard accessibility
+        document.addEventListener('keydown', function(e) {
+            if (document.getElementById('modal-overlay').style.display === 'flex') {
+                if (e.key === 'Escape') {
+                    closeModal();
+                }
+            }
+        });
+
+        // Focus management for accessibility
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add focus indicators and ARIA labels
+            const inputs = document.querySelectorAll('textarea, button, input[type="file"]');
+            inputs.forEach((input, index) => {
+                input.setAttribute('tabindex', index + 1);
+            });
+        });
+
+        // Test backend connection on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const response = await fetch(`${API}/`);
+                const data = await response.json();
+                console.log('Backend connected:', data.message);
+            } catch (error) {
+                console.error('Backend connection failed:', error);
+                document.getElementById('status-text').textContent = 'Backend connection failed';
+            }
+        });
+    </script>
+</body>
+</html>
