@@ -60,7 +60,8 @@ app.post('/api/generate-documentation', async (req, res) => {
             ]
         }, {
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'X-goog-api-key': GOOGLE_GEMINI_API_KEY
             },
             timeout: 30000 // 30 second timeout
         });
