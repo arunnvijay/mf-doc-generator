@@ -34,21 +34,21 @@ const Home = () => {
               Open Mainframe Doc Generator
             </a>
             <div className="text-sm text-green-300 max-w-2xl mx-auto">
-              <p className="mb-3">🚀 <strong>Now with AI-Powered Documentation Generation!</strong></p>
+              <p className="mb-3">🚀 <strong>Now with Google Gemini AI Integration!</strong></p>
               <div className="bg-gray-800 rounded-lg p-4 text-left">
                 <p className="text-green-400 font-semibold mb-2">Features:</p>
                 <ul className="list-disc list-inside space-y-1 text-green-300">
-                  <li>✅ Hugging Face LLM Integration (Free)</li>
-                  <li>✅ Structured Documentation Format</li>
+                  <li>✅ Google Gemini 2.0 Flash API</li>
+                  <li>✅ Optional Inputs (Any combination)</li>
+                  <li>✅ Node.js Backend</li>
+                  <li>✅ Enhanced Show Around Modal</li>
                   <li>✅ Mobile-Responsive Design</li>
-                  <li>✅ Interactive Guided Tour</li>
-                  <li>✅ Automatic Fallback Mode</li>
                 </ul>
-                <p className="text-green-400 font-semibold mt-4 mb-2">Setup Instructions:</p>
+                <p className="text-green-400 font-semibold mt-4 mb-2">Status:</p>
                 <p className="text-xs text-green-300">
-                  1. Get free Hugging Face API key at huggingface.co<br/>
-                  2. Add to backend/.env: HUGGING_FACE_API_KEY=your_key<br/>
-                  3. Restart backend: sudo supervisorctl restart backend
+                  ✅ Backend: Node.js Express Server<br/>
+                  ✅ AI: Google Gemini 2.0 Flash<br/>
+                  ✅ All inputs now optional
                 </p>
               </div>
             </div>
@@ -57,6 +57,26 @@ const Home = () => {
       </header>
     </div>
   );
+};
+
+// API Proxy route to handle Node.js backend requests
+const ApiProxy = () => {
+  useEffect(() => {
+    // Redirect API requests to Node.js backend
+    const path = window.location.pathname.replace('/api-proxy', '');
+    const backendUrl = `http://localhost:8002/api${path}`;
+    
+    fetch(backendUrl)
+      .then(response => response.json())
+      .then(data => {
+        document.body.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+      })
+      .catch(error => {
+        document.body.innerHTML = `<pre>Error: ${error.message}</pre>`;
+      });
+  }, []);
+
+  return <div>Loading...</div>;
 };
 
 // Mainframe Doc Generator Component (renders the HTML content)
@@ -88,6 +108,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/mainframe" element={<MainframeGenerator />} />
+          <Route path="/api-proxy/*" element={<ApiProxy />} />
         </Routes>
       </BrowserRouter>
     </div>
