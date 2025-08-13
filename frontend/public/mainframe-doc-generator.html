@@ -582,9 +582,24 @@
         // Global variables
         let isGenerating = false;
 
-        // Backend configuration
-        const BACKEND_URL = 'http://localhost:8002'; // Node.js backend
+        // Backend configuration - Dynamic URL detection
+        const getBackendUrl = () => {
+            const protocol = window.location.protocol;
+            const hostname = window.location.hostname;
+            
+            // If accessing from localhost, use localhost:8002
+            if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                return 'http://localhost:8002';
+            }
+            
+            // For other domains, use same host with port 8002
+            return `${protocol}//${hostname}:8002`;
+        };
+        
+        const BACKEND_URL = getBackendUrl();
         const API = `${BACKEND_URL}/api`;
+        
+        console.log('Backend URL:', BACKEND_URL);
 
         // File upload functionality
         function triggerFileUpload(type) {
