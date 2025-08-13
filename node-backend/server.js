@@ -101,7 +101,7 @@ app.get('/api/llm-status', (req, res) => {
     res.json({
         status: GOOGLE_GEMINI_API_KEY ? 'configured' : 'no_key',
         message: GOOGLE_GEMINI_API_KEY ? 'Google Gemini API key configured' : 'No Google Gemini API key provided',
-        model: 'gemini-pro',
+        model: 'gemini-2.0-flash',
         provider: 'google',
         available: !!GOOGLE_GEMINI_API_KEY
     });
