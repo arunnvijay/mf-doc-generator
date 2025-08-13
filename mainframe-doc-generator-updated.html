@@ -583,7 +583,7 @@
         let isGenerating = false;
 
         // Backend configuration
-        const BACKEND_URL = 'http://localhost:8002'; // Node.js backend
+        const BACKEND_URL = window.location.protocol + '//' + window.location.hostname + ':8002';
         const API = `${BACKEND_URL}/api`;
 
         // File upload functionality
