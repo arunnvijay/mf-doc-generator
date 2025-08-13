@@ -582,8 +582,10 @@
         // Global variables
         let isGenerating = false;
 
-        // Backend configuration
-        const BACKEND_URL = window.location.protocol + '//' + window.location.hostname + ':8002';
+        // Backend configuration - Use relative URL that works from any domain
+        const BACKEND_URL = window.location.hostname === 'localhost' ? 
+            'http://localhost:8002' : 
+            `${window.location.protocol}//${window.location.hostname}:8002`;
         const API = `${BACKEND_URL}/api`;
 
         // File upload functionality
