@@ -96,12 +96,6 @@
             box-shadow: 0 0 30px rgba(74, 222, 128, 0.1);
         }
 
-        .input-section.tour-highlight {
-            border-color: #4ade80;
-            box-shadow: 0 0 40px rgba(74, 222, 128, 0.4);
-            transform: scale(1.02);
-        }
-
         .input-label {
             display: block;
             font-size: 1.2rem;
@@ -110,9 +104,10 @@
             text-align: center;
         }
 
-        .input-label.required::after {
-            content: " *";
-            color: #ef4444;
+        .input-label.optional::after {
+            content: " (Optional)";
+            color: rgba(74, 222, 128, 0.6);
+            font-size: 0.9rem;
         }
 
         .textarea-container {
@@ -198,14 +193,17 @@
             transform: translateY(-1px);
         }
 
-        .generate-btn.tour-highlight {
-            animation: pulse 2s infinite;
+        .generate-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
         }
 
-        @keyframes pulse {
-            0% { box-shadow: 0 10px 30px rgba(74, 222, 128, 0.3); }
-            50% { box-shadow: 0 15px 50px rgba(74, 222, 128, 0.6); }
-            100% { box-shadow: 0 10px 30px rgba(74, 222, 128, 0.3); }
+        #llm-status {
+            margin-top: 15px;
+            font-size: 14px;
+            opacity: 0.8;
+            text-align: center;
         }
 
         /* Output section */
@@ -287,8 +285,8 @@
             box-shadow: 0 8px 25px rgba(74, 222, 128, 0.2);
         }
 
-        /* Tour overlay */
-        .tour-overlay {
+        /* Show Around Modal */
+        .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
@@ -297,40 +295,39 @@
             background: rgba(0, 0, 0, 0.8);
             display: none;
             z-index: 1000;
+            justify-content: center;
+            align-items: center;
         }
 
-        .tour-popup {
-            position: absolute;
+        .modal-content {
             background: rgba(10, 10, 11, 0.95);
             border: 2px solid #4ade80;
             border-radius: 12px;
-            padding: 25px;
-            max-width: 400px;
+            padding: 30px;
+            max-width: 90vw;
+            max-height: 90vh;
+            overflow-y: auto;
             box-shadow: 0 20px 60px rgba(74, 222, 128, 0.3);
+            position: relative;
         }
 
-        .tour-title {
-            font-size: 1.2rem;
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 1px solid rgba(74, 222, 128, 0.3);
+            padding-bottom: 15px;
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
             font-weight: 600;
-            margin-bottom: 15px;
             color: #4ade80;
         }
 
-        .tour-text {
-            font-size: 14px;
-            line-height: 1.6;
-            margin-bottom: 20px;
-            color: rgba(74, 222, 128, 0.9);
-        }
-
-        .tour-buttons {
-            display: flex;
-            gap: 10px;
-            justify-content: flex-end;
-        }
-
-        .tour-btn {
-            background: rgba(74, 222, 128, 0.1);
+        .modal-close {
+            background: none;
             border: 1px solid #4ade80;
             color: #4ade80;
             padding: 8px 16px;
@@ -341,27 +338,47 @@
             transition: all 0.3s ease;
         }
 
-        .tour-btn:hover {
+        .modal-close:hover {
             background: rgba(74, 222, 128, 0.2);
         }
 
-        .tour-btn.primary {
-            background: #4ade80;
-            color: #000;
+        .modal-body {
+            line-height: 1.6;
+            color: rgba(74, 222, 128, 0.9);
         }
 
-        .tour-btn.primary:hover {
-            background: #22c55e;
+        .modal-section {
+            margin-bottom: 25px;
         }
 
-        /* Loading animation */
-        .typing-cursor {
-            animation: blink 1s infinite;
+        .modal-section h3 {
+            color: #4ade80;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            border-left: 3px solid #4ade80;
+            padding-left: 10px;
         }
 
-        @keyframes blink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
+        .modal-section p {
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .modal-section ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        .modal-section li {
+            margin-bottom: 5px;
+            position: relative;
+        }
+
+        .modal-section li::before {
+            content: "▶";
+            color: #4ade80;
+            position: absolute;
+            left: -15px;
         }
 
         /* Responsive design */
@@ -395,33 +412,10 @@
                 align-items: center;
             }
 
-            /* Mobile tour popup adjustments */
-            .tour-popup {
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                width: 90%;
-                max-width: 350px;
-                max-height: 80vh;
-                overflow-y: auto;
-            }
-
-            .tour-text {
-                font-size: 13px;
-                line-height: 1.5;
-            }
-
-            .tour-buttons {
-                flex-wrap: wrap;
-                gap: 8px;
-            }
-
-            .tour-btn {
-                flex: 1;
-                min-width: 70px;
-                font-size: 11px;
-                padding: 6px 12px;
+            .modal-content {
+                max-width: 95vw;
+                max-height: 95vh;
+                padding: 20px;
             }
         }
 
@@ -439,6 +433,16 @@
                 height: 300px;
             }
         }
+
+        /* Loading animation */
+        .typing-cursor {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
     </style>
 </head>
 <body>
@@ -453,27 +457,27 @@
         <!-- Input sections -->
         <div class="input-grid">
             <div class="input-section" id="jcl-section">
-                <label class="input-label">JCL</label>
+                <label class="input-label optional">JCL</label>
                 <div class="textarea-container">
-                    <textarea id="jcl-input" placeholder="Paste your JCL code here or upload a file..."></textarea>
+                    <textarea id="jcl-input" placeholder="Paste your JCL code here or upload a file... (Optional)"></textarea>
                 </div>
                 <button class="upload-btn" onclick="triggerFileUpload('jcl')">📂 Upload File</button>
                 <input type="file" class="file-input" id="jcl-file" accept=".jcl,.txt,.job">
             </div>
 
             <div class="input-section" id="proc-section">
-                <label class="input-label">PROC</label>
+                <label class="input-label optional">PROC</label>
                 <div class="textarea-container">
-                    <textarea id="proc-input" placeholder="Paste your PROC code here or upload a file..."></textarea>
+                    <textarea id="proc-input" placeholder="Paste your PROC code here or upload a file... (Optional)"></textarea>
                 </div>
                 <button class="upload-btn" onclick="triggerFileUpload('proc')">📂 Upload File</button>
                 <input type="file" class="file-input" id="proc-file" accept=".proc,.txt">
             </div>
 
             <div class="input-section" id="program-section">
-                <label class="input-label required">COBOL / ASM / PL1</label>
+                <label class="input-label optional">COBOL / ASM / PL1</label>
                 <div class="textarea-container">
-                    <textarea id="program-input" placeholder="Paste your program code here or upload a file... (Required)"></textarea>
+                    <textarea id="program-input" placeholder="Paste your program code here or upload a file... (Optional)"></textarea>
                 </div>
                 <button class="upload-btn" onclick="triggerFileUpload('program')">📂 Upload File</button>
                 <input type="file" class="file-input" id="program-file" accept=".cob,.cobol,.asm,.pl1,.pli,.txt">
@@ -483,7 +487,7 @@
         <!-- Generate button -->
         <div class="generate-container" id="generate-section">
             <button class="generate-btn" id="generateBtn" onclick="generateDocumentation()">Generate</button>
-            <div id="llm-status" style="margin-top: 15px; font-size: 14px; opacity: 0.8; text-align: center;">
+            <div id="llm-status">
                 <span id="status-text">Ready to generate documentation</span>
             </div>
         </div>
@@ -499,63 +503,88 @@
         </div>
     </div>
 
-    <!-- Tour overlay -->
-    <div class="tour-overlay" id="tour-overlay">
-        <div class="tour-popup" id="tour-popup">
-            <div class="tour-title" id="tour-title"></div>
-            <div class="tour-text" id="tour-text"></div>
-            <div class="tour-buttons">
-                <button class="tour-btn" id="tour-prev" onclick="previousStep()">Previous</button>
-                <button class="tour-btn" id="tour-close" onclick="closeTour()">Close</button>
-                <button class="tour-btn primary" id="tour-next" onclick="nextStep()">Next</button>
+    <!-- Show Around Modal -->
+    <div class="modal-overlay" id="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Mainframe Documentation Generator - Complete Guide</h2>
+                <button class="modal-close" onclick="closeModal()">Close</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-section">
+                    <h3>JCL Documentation</h3>
+                    <p>Job Control Language (JCL) defines how your mainframe job executes:</p>
+                    <ul>
+                        <li>Job scheduling and resource allocation</li>
+                        <li>Dataset definitions and file handling</li>
+                        <li>Step execution order and dependencies</li>
+                        <li>System parameter configuration</li>
+                        <li>Output routing and disposition</li>
+                    </ul>
+                    <p><strong>Usage:</strong> Paste your JCL code or upload a .jcl/.job file. The system will document job flow, resource requirements, and execution logic.</p>
+                </div>
+
+                <div class="modal-section">
+                    <h3>PROC Documentation</h3>
+                    <p>Procedures (PROC) are reusable JCL components that standardize operations:</p>
+                    <ul>
+                        <li>Parameterized job steps and templates</li>
+                        <li>Symbolic parameter definitions and substitution</li>
+                        <li>Standardized resource allocation patterns</li>
+                        <li>Common utility program invocations</li>
+                        <li>Error handling and recovery procedures</li>
+                    </ul>
+                    <p><strong>Usage:</strong> Upload your PROC definitions to document standardized processing patterns and parameter usage.</p>
+                </div>
+
+                <div class="modal-section">
+                    <h3>Program Documentation</h3>
+                    <p>COBOL, Assembly, or PL/I program analysis covers:</p>
+                    <ul>
+                        <li>Business logic and data transformations</li>
+                        <li>File structures and record layouts</li>
+                        <li>Validation rules and error handling</li>
+                        <li>Database interactions and SQL operations</li>
+                        <li>Performance considerations and optimizations</li>
+                    </ul>
+                    <p><strong>Usage:</strong> Provide your program source code for comprehensive technical documentation including data flow and business rules.</p>
+                </div>
+
+                <div class="modal-section">
+                    <h3>AI-Powered Analysis</h3>
+                    <p>Our Google Gemini integration provides:</p>
+                    <ul>
+                        <li>Intelligent code analysis and pattern recognition</li>
+                        <li>Contextual documentation generation</li>
+                        <li>Cross-component relationship mapping</li>
+                        <li>Best practice recommendations</li>
+                        <li>Modernization insights and suggestions</li>
+                    </ul>
+                    <p><strong>Note:</strong> You can provide any combination of JCL, PROC, and Program code. The system adapts documentation to analyze only the components you provide.</p>
+                </div>
+
+                <div class="modal-section">
+                    <h3>Features</h3>
+                    <ul>
+                        <li><strong>Flexible Input:</strong> Any combination of JCL, PROC, or Program code</li>
+                        <li><strong>File Upload:</strong> Support for various mainframe file formats</li>
+                        <li><strong>Smart Analysis:</strong> Google Gemini AI for comprehensive documentation</li>
+                        <li><strong>Structured Output:</strong> Consistent 7-section documentation format</li>
+                        <li><strong>Export Options:</strong> Copy to clipboard or download as text file</li>
+                        <li><strong>Mobile Responsive:</strong> Works on all devices and screen sizes</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
         // Global variables
-        let currentTourStep = 0;
         let isGenerating = false;
 
-        // Tour steps configuration
-        const tourSteps = [
-            {
-                target: 'jcl-section',
-                title: 'JCL Input (Optional)',
-                text: 'Paste or upload your Job Control Language (JCL) code here. Symbolics like &DSN and &FILE will be automatically resolved during generation.',
-                position: { top: '20%', left: '10%' }
-            },
-            {
-                target: 'proc-section',
-                title: 'PROC Input (Optional)',
-                text: 'Add your procedure (PROC) code here. This defines reusable job steps and parameters. Symbolics will be resolved automatically.',
-                position: { top: '20%', left: '50%' }
-            },
-            {
-                target: 'program-section',
-                title: 'Program Input (Required)',
-                text: 'This field is mandatory. Upload or paste your COBOL, Assembly, or PL/I program code. This is the core logic that will be documented.',
-                position: { top: '20%', right: '10%' }
-            },
-            {
-                target: 'generate-section',
-                title: 'Generate Button',
-                text: 'Click to validate inputs, resolve symbolics, and generate AI-powered documentation. The program input is required to proceed.',
-                position: { top: '60%', left: '50%', transform: 'translateX(-50%)' }
-            },
-            {
-                target: 'output-section',
-                title: 'Output Area',
-                text: 'Generated documentation will appear here in a structured format: Program Summary, Files Used, and Job & Procedure Flow.',
-                position: { bottom: '20%', left: '50%', transform: 'translateX(-50%)' }
-            },
-            {
-                target: 'action-buttons',
-                title: 'Copy & Download',
-                text: 'Use these buttons to copy the documentation to clipboard or download it as a .txt file for sharing and archiving.',
-                position: { bottom: '10%', right: '20%' }
-            }
-        ];
+        // Backend configuration
+        const BACKEND_URL = 'http://localhost:8002'; // Node.js backend
+        const API = `${BACKEND_URL}/api`;
 
         // File upload functionality
         function triggerFileUpload(type) {
@@ -586,38 +615,18 @@
             }
         }
 
-        // Symbolic resolution function
-        function resolveSymbolics(text) {
-            if (!text) return text;
-            
-            const symbolics = {
-                '&DSN': 'CUSTOMER.DAILY.DATA',
-                '&FILE1': 'CUSTOMER.VALIDATED.DATA',
-                '&FILE2': 'ACCOUNT.MASTER',
-                '&OUTFILE': 'REPORTS.DAILY.OUTPUT',
-                '&NAME': 'RESOLVED_NAME',
-                '&LIB': 'SYS1.PROCLIB',
-                '&WORK': 'TEMP.WORK.FILE',
-                '&DB2SSN': 'DB2PROD',
-                '&HLQ': 'PROD.DATASET'
-            };
-
-            let resolvedText = text;
-            for (const [symbolic, resolved] of Object.entries(symbolics)) {
-                const regex = new RegExp(symbolic.replace('&', '\\&'), 'g');
-                resolvedText = resolvedText.replace(regex, resolved);
-            }
-            
-            return resolvedText;
-        }
-
-        // Generate documentation using LLM
+        // Generate documentation using Google Gemini
         async function generateDocumentation() {
             if (isGenerating) return;
 
+            // Get inputs
+            const jclInput = document.getElementById('jcl-input').value.trim();
+            const procInput = document.getElementById('proc-input').value.trim();
             const programInput = document.getElementById('program-input').value.trim();
-            if (!programInput) {
-                alert('At least program input is mandatory.');
+
+            // Validation: At least one input must be provided
+            if (!jclInput && !procInput && !programInput) {
+                alert('At least one input (JCL, PROC, or Program) must be provided.');
                 return;
             }
 
@@ -627,19 +636,15 @@
             
             generateBtn.disabled = true;
             generateBtn.textContent = 'Generating...';
-            statusText.textContent = 'Calling Hugging Face LLM API...';
+            statusText.textContent = 'Calling Google Gemini API...';
             
             // Show output section
             const outputSection = document.getElementById('output-section');
             outputSection.classList.add('show');
-            
-            // Get inputs
-            const jclInput = document.getElementById('jcl-input').value.trim();
-            const procInput = document.getElementById('proc-input').value.trim();
 
             try {
-                // Call the backend API
-                const response = await fetch(`${window.location.origin}/api/generate-documentation`, {
+                // Call the Node.js backend API
+                const response = await fetch(`${API}/generate-documentation`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -647,7 +652,7 @@
                     body: JSON.stringify({
                         jcl_code: jclInput || null,
                         proc_code: procInput || null,
-                        program_code: programInput,
+                        program_code: programInput || null,
                         session_id: generateSessionId()
                     })
                 });
@@ -658,25 +663,19 @@
 
                 const data = await response.json();
                 
-                // Check if it's LLM-generated or fallback
-                if (data.documentation.includes('AI-GENERATED')) {
-                    statusText.textContent = '✅ Generated using Hugging Face LLM';
-                } else if (data.documentation.includes('RULE-BASED')) {
-                    statusText.textContent = '⚠️ Using rule-based analysis (LLM unavailable)';
+                // Check if LLM call failed
+                if (data.documentation === 'LLM call failed') {
+                    statusText.textContent = '❌ LLM call failed';
+                    await typeText('LLM call failed');
                 } else {
-                    statusText.textContent = '✅ Documentation generated successfully';
+                    statusText.textContent = '✅ Generated using Google Gemini';
+                    await typeText(data.documentation);
                 }
-                
-                // Simulate typing effect with the LLM response
-                await typeText(data.documentation);
                 
             } catch (error) {
                 console.error('Error generating documentation:', error);
-                statusText.textContent = '❌ API error - using fallback generation';
-                
-                // Fallback to client-side generation
-                const fallbackDoc = generateFallbackDocumentation(jclInput, procInput, programInput);
-                await typeText(fallbackDoc);
+                statusText.textContent = '❌ LLM call failed';
+                await typeText('LLM call failed');
             }
             
             isGenerating = false;
@@ -692,152 +691,6 @@
         // Generate session ID
         function generateSessionId() {
             return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-        }
-
-        // Fallback documentation generation (client-side)
-        function generateFallbackDocumentation(jcl, proc, program) {
-            const files = extractDatasetNames(jcl, proc, program);
-            const programType = detectProgramType(program);
-            
-            let content = '=== MAINFRAME DOCUMENTATION (Fallback Mode) ===\n\n';
-            
-            content += '1. Overview\n';
-            content += `This ${programType} batch program processes mainframe datasets according to defined business logic. `;
-            content += 'The program reads input files, applies data transformations and validations, ';
-            content += 'and produces structured output files for downstream processing.\n\n';
-            
-            if (jcl) {
-                content += '2. Job Flow\n';
-                content += 'The JCL initiates execution by allocating input and output datasets. ';
-                content += 'Symbolics have been resolved to concrete dataset names.\n';
-                if (proc) {
-                    content += 'PROC steps are executed to set up environment variables and allocate work datasets.\n';
-                }
-                content += 'Program execution follows standard mainframe job processing flow.\n\n';
-            }
-            
-            content += `${jcl ? '3' : '2'}. Transformations\n`;
-            content += '- Data is read from input sources\n';
-            content += '- Business rules and logic are applied for processing\n';
-            content += '- Data transformations are performed according to requirements\n';
-            content += '- Transformed data is written to output destinations\n\n';
-            
-            content += `${jcl ? '4' : '3'}. Validations\n`;
-            content += '- Input data validation checks are performed\n';
-            content += '- Error handling procedures for invalid records\n';
-            content += '- Data integrity verification processes\n';
-            content += '- Business rule validation enforcement\n\n';
-            
-            content += `${jcl ? '5' : '4'}. Inputs & Outputs\n`;
-            if (files.length > 0) {
-                content += 'Input Files:\n';
-                files.slice(0, Math.ceil(files.length/2)).forEach(file => {
-                    content += `- ${file}: Source data for processing\n`;
-                });
-                content += '\nOutput Files:\n';
-                files.slice(Math.ceil(files.length/2)).forEach(file => {
-                    content += `- ${file}: Processed and validated data\n`;
-                });
-            } else {
-                content += 'Input Files: Source datasets containing raw data for processing\n';
-                content += 'Output Files: Processed datasets with transformed and validated data\n';
-            }
-            content += '\n';
-            
-            content += `${jcl ? '6' : '5'}. Dependencies\n`;
-            content += '- System datasets and libraries\n';
-            content += '- External programs and procedures\n';
-            content += '- Database connections (if applicable)\n';
-            content += '- Symbolic parameter definitions\n\n';
-            
-            content += `${jcl ? '7' : '6'}. Special Notes\n`;
-            content += '- Standard mainframe error handling procedures apply\n';
-            content += '- Program follows enterprise coding standards\n';
-            content += '- Performance optimized for batch processing\n';
-            content += '- Proper resource allocation and cleanup procedures\n\n';
-            
-            content += '(Note: Enhanced LLM-powered documentation available with Hugging Face API key)\n';
-            
-            return content;
-        }
-
-        // Generate documentation content
-        function generateDocumentationContent(jcl, proc, program) {
-            const files = extractDatasetNames(jcl, proc, program);
-            const programType = detectProgramType(program);
-            
-            let content = '=== Program Summary ===\n';
-            content += `This ${programType} batch program processes mainframe datasets according to defined business logic. `;
-            content += 'The program reads input files, applies data transformations and validations, ';
-            content += 'and produces structured output files for downstream processing.\n\n';
-            
-            content += '=== Files Used ===\n';
-            if (files.length > 0) {
-                files.forEach(file => {
-                    content += file + '\n';
-                });
-            } else {
-                content += 'CUSTOMER.DAILY.DATA\n';
-                content += 'CUSTOMER.VALIDATED.DATA\n';
-                content += 'ACCOUNT.MASTER\n';
-                content += 'REPORTS.DAILY.OUTPUT\n';
-            }
-            content += '\n';
-            
-            content += '=== Job & Procedure Flow ===\n';
-            if (jcl) {
-                content += 'The JCL initiates execution by allocating input and output datasets. ';
-                content += 'Symbolics have been resolved to concrete dataset names.\n';
-            }
-            if (proc) {
-                content += 'Step 1: Execute the PROC to set up environment variables and allocate intermediate work datasets.\n';
-                content += 'Step 2: Compile and link the program using the resolved parameters.\n';
-            }
-            content += `Step ${proc ? '3' : '1'}: Execute the ${programType} program with resolved dataset names, processing input and creating output.\n`;
-            content += `Step ${proc ? '4' : '2'}: Generate and store reports in the designated output datasets.\n`;
-            content += 'All steps complete successfully under the specified JOB CLASS and system configuration.\n';
-            
-            return content;
-        }
-
-        // Extract dataset names from code
-        function extractDatasetNames(jcl, proc, program) {
-            const datasets = [];
-            const text = (jcl + ' ' + proc + ' ' + program).toUpperCase();
-            
-            // Common mainframe dataset patterns
-            const patterns = [
-                /([A-Z0-9]+\.)+[A-Z0-9]+/g,
-                /DSN=([A-Z0-9\.]+)/g,
-                /DD\s+DSN=([A-Z0-9\.]+)/g
-            ];
-            
-            patterns.forEach(pattern => {
-                const matches = text.match(pattern);
-                if (matches) {
-                    matches.forEach(match => {
-                        const dsn = match.replace('DSN=', '');
-                        if (dsn.includes('.') && dsn.length > 3 && !datasets.includes(dsn)) {
-                            datasets.push(dsn);
-                        }
-                    });
-                }
-            });
-            
-            return datasets.slice(0, 10); // Limit to first 10 datasets
-        }
-
-        // Detect program type
-        function detectProgramType(program) {
-            const upperProgram = program.toUpperCase();
-            if (upperProgram.includes('IDENTIFICATION DIVISION') || upperProgram.includes('COBOL')) {
-                return 'COBOL';
-            } else if (upperProgram.includes('CSECT') || upperProgram.includes('BALR') || upperProgram.includes('ASM')) {
-                return 'Assembly';
-            } else if (upperProgram.includes('PL/I') || upperProgram.includes('PLI') || upperProgram.includes('PROC OPTIONS')) {
-                return 'PL/I';
-            }
-            return 'COBOL'; // Default assumption
         }
 
         // Typing animation
@@ -885,76 +738,31 @@
             URL.revokeObjectURL(url);
         }
 
-        // Tour functionality
-        document.getElementById('showAroundBtn').addEventListener('click', startTour);
+        // Show Around Modal functionality
+        document.getElementById('showAroundBtn').addEventListener('click', showModal);
 
-        function startTour() {
-            currentTourStep = 0;
-            document.getElementById('tour-overlay').style.display = 'block';
-            showTourStep();
+        function showModal() {
+            document.getElementById('modal-overlay').style.display = 'flex';
+            document.body.style.overflow = 'hidden'; // Prevent background scrolling
         }
 
-        function showTourStep() {
-            const step = tourSteps[currentTourStep];
-            const popup = document.getElementById('tour-popup');
-            const target = document.getElementById(step.target);
-            
-            // Clear previous highlights
-            document.querySelectorAll('.tour-highlight').forEach(el => {
-                el.classList.remove('tour-highlight');
-            });
-            
-            // Highlight current target
-            if (target) {
-                target.classList.add('tour-highlight');
+        function closeModal() {
+            document.getElementById('modal-overlay').style.display = 'none';
+            document.body.style.overflow = 'auto'; // Restore scrolling
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('modal-overlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
             }
-            
-            // Update popup content
-            document.getElementById('tour-title').textContent = step.title;
-            document.getElementById('tour-text').textContent = step.text;
-            
-            // Position popup
-            Object.assign(popup.style, step.position);
-            
-            // Update buttons
-            document.getElementById('tour-prev').style.display = 
-                currentTourStep === 0 ? 'none' : 'inline-block';
-            document.getElementById('tour-next').textContent = 
-                currentTourStep === tourSteps.length - 1 ? 'Finish' : 'Next';
-        }
+        });
 
-        function nextStep() {
-            if (currentTourStep < tourSteps.length - 1) {
-                currentTourStep++;
-                showTourStep();
-            } else {
-                closeTour();
-            }
-        }
-
-        function previousStep() {
-            if (currentTourStep > 0) {
-                currentTourStep--;
-                showTourStep();
-            }
-        }
-
-        function closeTour() {
-            document.getElementById('tour-overlay').style.display = 'none';
-            document.querySelectorAll('.tour-highlight').forEach(el => {
-                el.classList.remove('tour-highlight');
-            });
-        }
-
-        // Keyboard accessibility for tour
+        // Keyboard accessibility
         document.addEventListener('keydown', function(e) {
-            if (document.getElementById('tour-overlay').style.display === 'block') {
+            if (document.getElementById('modal-overlay').style.display === 'flex') {
                 if (e.key === 'Escape') {
-                    closeTour();
-                } else if (e.key === 'ArrowRight' || e.key === 'Enter') {
-                    nextStep();
-                } else if (e.key === 'ArrowLeft') {
-                    previousStep();
+                    closeModal();
                 }
             }
         });
@@ -966,6 +774,18 @@
             inputs.forEach((input, index) => {
                 input.setAttribute('tabindex', index + 1);
             });
+        });
+
+        // Test backend connection on page load
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                const response = await fetch(`${API}/`);
+                const data = await response.json();
+                console.log('Backend connected:', data.message);
+            } catch (error) {
+                console.error('Backend connection failed:', error);
+                document.getElementById('status-text').textContent = 'Backend connection failed';
+            }
         });
     </script>
 </body>
