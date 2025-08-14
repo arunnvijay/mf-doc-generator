@@ -658,10 +658,7 @@
             outputSection.classList.add('show');
 
             try {
-                // Call the Node.js backend API with longer timeout
-                const controller = new AbortController();
-                const timeoutId = setTimeout(() => controller.abort(), 15000); // 15 second timeout
-                
+                // Call the Node.js backend API
                 const response = await fetch(`${API}/generate-documentation`, {
                     method: 'POST',
                     headers: {
@@ -672,11 +669,8 @@
                         proc_code: procInput || null,
                         program_code: programInput || null,
                         session_id: generateSessionId()
-                    }),
-                    signal: controller.signal
+                    })
                 });
-                
-                clearTimeout(timeoutId);
 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -695,13 +689,8 @@
                 
             } catch (error) {
                 console.error('Error generating documentation:', error);
-                if (error.name === 'AbortError') {
-                    statusText.textContent = '❌ Request timeout (15s)';
-                    await typeText('Request timeout - please try again');
-                } else {
-                    statusText.textContent = '❌ LLM call failed';
-                    await typeText('LLM call failed');
-                }
+                statusText.textContent = '❌ LLM call failed';
+                await typeText('LLM call failed');
             }
             
             isGenerating = false;
