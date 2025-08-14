@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Debug Frontend API</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #000; color: #0f0; }
+        textarea { width: 100%; height: 200px; background: #111; color: #0f0; border: 1px solid #0f0; }
+        button { background: #0f0; color: #000; padding: 10px 20px; margin: 10px; border: none; }
+        .result { background: #111; padding: 10px; margin: 10px 0; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <h1>Debug Frontend API Connection</h1>
+    
+    <h3>Backend URL Test:</h3>
+    <div id="backend-url"></div>
+    
+    <h3>Test Input:</h3>
+    <textarea id="test-input">IDENTIFICATION DIVISION.
+PROGRAM-ID. DEBUG-TEST.
+PROCEDURE DIVISION.
+    DISPLAY 'Debug test'
+    STOP RUN.</textarea>
+    
+    <button onclick="testAPI()">Test API Call</button>
+    <button onclick="testHealthCheck()">Test Health Check</button>
+    
+    <h3>Results:</h3>
+    <div id="results" class="result"></div>
+    
+    <script>
+        // Backend configuration - Same as main app
+        const getBackendUrl = () => {
+            const protocol = window.location.protocol;
+            const hostname = window.location.hostname;
+            
+            if (hostname === 'localhost' || hostname === '127.0.0.1') {
+                return 'http://localhost:8002';
+            }
+            
+            return `${protocol}//${hostname}:8002`;
+        };
+        
+        const BACKEND_URL = getBackendUrl();
+        const API = `${BACKEND_URL}/api`;
+        
+        document.getElementById('backend-url').textContent = `Backend URL: ${BACKEND_URL}`;
+        
+        async function testHealthCheck() {
+            const results = document.getElementById('results');
+            results.textContent = 'Testing health check...\n';
+            
+            try {
+                const response = await fetch(`${API}/`);
+                const data = await response.json();
+                
+                results.textContent += `✅ Health Check Success:\n`;
+                results.textContent += `Status: ${response.status}\n`;
+                results.textContent += `Response: ${JSON.stringify(data, null, 2)}\n\n`;
+            } catch (error) {
+                results.textContent += `❌ Health Check Failed:\n`;
+                results.textContent += `Error: ${error.message}\n\n`;
+            }
+        }
+        
+        async function testAPI() {
+            const results = document.getElementById('results');
+            const input = document.getElementById('test-input').value;
+            
+            results.textContent = 'Testing API call...\n';
+            
+            try {
+                const startTime = Date.now();
+                
+                const response = await fetch(`${API}/generate-documentation`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        program_code: input,
+                        session_id: 'debug_test_' + Date.now()
+                    })
+                });
+                
+                const endTime = Date.now();
+                const duration = endTime - startTime;
+                
+                results.textContent += `⏱️ Request took ${duration}ms\n`;
+                results.textContent += `📡 Response Status: ${response.status}\n`;
+                results.textContent += `📡 Response OK: ${response.ok}\n`;
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    results.textContent += `✅ API Call Success:\n`;
+                    results.textContent += `Method: ${data.method}\n`;
+                    results.textContent += `Status: ${data.status}\n`;
+                    results.textContent += `Session: ${data.session_id}\n`;
+                    results.textContent += `Documentation Length: ${data.documentation.length} chars\n`;
+                    results.textContent += `Documentation Preview: ${data.documentation.substring(0, 200)}...\n\n`;
+                    
+                    if (data.documentation === 'LLM call failed') {
+                        results.textContent += `❌ Backend returned 'LLM call failed'\n`;
+                        results.textContent += `Error: ${data.error}\n`;
+                        results.textContent += `Error Details: ${data.errorDetails}\n`;
+                    }
+                } else {
+                    const errorText = await response.text();
+                    results.textContent += `❌ HTTP Error:\n`;
+                    results.textContent += `Status: ${response.status} ${response.statusText}\n`;
+                    results.textContent += `Response: ${errorText}\n\n`;
+                }
+                
+            } catch (error) {
+                results.textContent += `❌ API Call Failed:\n`;
+                results.textContent += `Error: ${error.message}\n`;
+                results.textContent += `Stack: ${error.stack}\n\n`;
+            }
+        }
+        
+        // Auto-run health check on load
+        window.onload = testHealthCheck;
+    </script>
+</body>
+</html>
