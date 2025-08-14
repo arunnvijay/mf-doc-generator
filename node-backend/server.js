@@ -84,6 +84,7 @@ app.post('/api/generate-documentation', async (req, res) => {
 
     } catch (error) {
         console.error('Error generating documentation:', error.message);
+        console.error('Error details:', error.response?.data || error);
         
         // Return LLM call failed message as requested
         res.json({
@@ -91,7 +92,8 @@ app.post('/api/generate-documentation', async (req, res) => {
             session_id: req.body.session_id || generateSessionId(),
             method: 'failed',
             status: 'error',
-            error: error.message
+            error: error.message,
+            errorDetails: error.response?.data || 'No additional details'
         });
     }
 });
